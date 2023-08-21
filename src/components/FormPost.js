@@ -30,7 +30,7 @@ export default function FormPost(props) {
       .then((res) => {
         console.log(res.data);
         setNewPost(res.data);
-        simpleModal("Postagem enviada com sucesso!", "success");
+        // simpleModal("Postagem enviada com sucesso!", "success");
         setPostUrl("");
         setContentValue("");
       })
@@ -40,7 +40,7 @@ export default function FormPost(props) {
       })
       .finally(() => {
         setLoading(false);
-        window.location.reload();
+        // window.location.reload();
       });
   };
 
