@@ -39,10 +39,10 @@ export default function HomePage() {
         <BodyContent>
           <BodyContentLeft>
             <TitleContainer>
-              <span onClick={() => console.log(postsInfos)}>timeline</span>
+              <span>timeline</span>
             </TitleContainer>
             <FormPost />
-            {postsInfos.posts &&
+            {postsInfos.posts.length > 0 ?
               postsInfos.posts.map((post, i) => {
                 return (
                   <Post
@@ -59,7 +59,7 @@ export default function HomePage() {
                     userId={post.userId}
                   />
                 );
-              })}
+              }) : <span data-test="message">There are no posts yet</span> }
           </BodyContentLeft>
           <div className="trending-div">
             <Trending />
