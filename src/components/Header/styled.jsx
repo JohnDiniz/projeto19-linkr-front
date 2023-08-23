@@ -1,5 +1,7 @@
 import styled from "styled-components";
 
+import { Link } from "react-router-dom";
+
 export const Container = styled.div`
   background-color: #151515;
   font-size: 20px;
@@ -8,7 +10,7 @@ export const Container = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  z-index: 2;
+  z-index: 10;
   position: fixed;
   top: 0;
   left: 0;
@@ -32,6 +34,10 @@ export const Menu = styled.div`
   }
 `;
 
+export const StyledLink = styled(Link)`
+  text-decoration: none;
+`;
+
 export const Title = styled.h1`
   color: white;
   font-family: "Passion One";
@@ -43,6 +49,7 @@ export const Title = styled.h1`
     font-size: 30px;
     padding-left: 10px;
   }
+  text-decoration: none;
 `;
 
 export const Icon = styled.div`
