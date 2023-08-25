@@ -14,7 +14,7 @@ import ReactLoading from "react-loading";
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { CommentField, ContainerComments } from './StyledComments';
-import Comment from './Comment';
+import Comment from './Comment';    
 
 
 export default function Post(props) {
@@ -36,10 +36,10 @@ export default function Post(props) {
     const { user } = useContext(AuthContext);
     const postUserId = props.userId
     const [commentsVisible, setCommentsVisible] = useState(false);
-
-    //comments 
     const [commentInput, setCommentInput] = useState("");
     const [commentCount, setCommentCount] = useState(0);
+    const [comments, setComments] = useState([]);
+    const [loadingComments, setLoadingComments] = useState(false);
 
     const fetchCommentCount = async () => {
         try {
@@ -52,9 +52,12 @@ export default function Post(props) {
       
       useEffect(() => {
         fetchCommentCount();
-      }, []);
+      }, []);    
 
-    /////////////////////////////////////////////////////////      
+      useEffect(() => {
+        fetchCommentCount();
+        fetchComments();
+    }, [props.postId, commentCount]); 
 
     useEffect(() => {
         setOriginalText(props.text);
@@ -96,6 +99,8 @@ export default function Post(props) {
             closeDeleteModal();
             alert("Error to delete post");
         }
+        fetchCommentCount();
+        fetchComments();
     };
 
     const handleEditIconClick = () => {
@@ -186,7 +191,50 @@ export default function Post(props) {
         const value = event.target.value;
         setCommentInput(value);
         console.log(value)
+
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault(); 
+            handleSendComment(); 
+        }
     };
+
+    const handleSendComment = async () => {
+        if (commentInput.trim() === '') {
+            return; 
+        }
+        try {
+            await axios.post(`${process.env.REACT_APP_API_URL}/comments`, {
+                postId: props.postId,
+                userId: user.id, 
+                comment: commentInput
+            });
+            setCommentInput('');
+            fetchComments();
+            fetchCommentCount();
+        } catch (error) {
+            console.error('Erro ao enviar o comentário', error);
+            alert('Erro ao enviar o comentário');
+        }
+    };
+
+    const fetchComments = async () => {
+        setLoadingComments(true);
+        try {
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/comments/${props.postId}`);
+            setComments(response.data); 
+        } catch (error) {
+            console.error('Erro ao obter os comentários', error);
+        }
+        setLoadingComments(false);
+    };
+
+    const handleCommentsIconClick = () => {
+        setCommentsVisible(!commentsVisible);
+        if (!commentsVisible) {
+            fetchComments(); 
+        }
+    };
+    
 
     return (
         <>
@@ -194,8 +242,8 @@ export default function Post(props) {
                 <LeftSection>
                     <PerfilImg src={props.userImg} />
                     <LikeButton />
-                    <AiOutlineComment className="comments" onClick={() => setCommentsVisible(!commentsVisible)} />
-                    <p>{commentCount} comments</p>
+                    <span data-test="comment-btn"><AiOutlineComment className="comments" onClick={handleCommentsIconClick} /></span>
+                    <p data-test="comment-counter">{commentCount} comments</p>
                 </LeftSection>
                 <div>
                     <h2 data-test="username" onClick={() => navigate(`/user/${postUserId}`)}>{props.name}</h2>
@@ -281,19 +329,27 @@ export default function Post(props) {
                 </ReactModal>
             </ContainerPost>
             {commentsVisible && (
-                <ContainerComments>
-                    <Comment />
-                    <Comment />
-                    <Comment />
-                    <CommentField>
-                        <img src={user.imageUrl}/>
-                        <textarea 
-                        placeholder="write a comment..."
-                        value={commentInput}
-                        onChange={handleTextAreaChange}
-                        />
-                    </CommentField>
-                    <SlPaperPlane className='send'/>
+                <ContainerComments data-test="comment-box">
+                    {loadingComments ? (
+                        <p>Loading comments...</p>
+                    ) : (
+                        <>
+                            {comments.map((comment, index) => (
+                                <div className='comment'><Comment key={index} info={comment} userId={postUserId}/></div>
+                            ))}
+                            <CommentField>
+                                <img src={user.imageUrl} />
+                                <textarea
+                                    data-test="comment-input"
+                                    placeholder="write a comment..."
+                                    value={commentInput}
+                                    onChange={handleTextAreaChange}
+                                    onKeyDown={handleTextAreaChange}
+                                />
+                            </CommentField>
+                            <span data-test="comment-submit"><SlPaperPlane className="send" onClick={handleSendComment} /></span>
+                        </>
+                    )}
                 </ContainerComments>
             )}
         </>

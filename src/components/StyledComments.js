@@ -40,11 +40,15 @@ textarea::placeholder {
     position: relative;
     bottom: 55px;
     left: 335px;
+    cursor: pointer;
+}
+.comment{
+    width: calc(100% - 50px);
+    border-top: 1px solid #353535;
 }
 `
 
 export const ContainerComment = styled.div`
-    border-top: 1px solid #353535;
     display: flex;
     align-items: flex-start;
     padding: 17px 0;
@@ -89,6 +93,11 @@ li::before {
     margin-right: 5px; 
     position: absolute;
     left: -12px; 
+}
+
+span{
+    color: #565656;
+    margin-left: 5px;
 }
 `
 

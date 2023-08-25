@@ -20,6 +20,10 @@ const FollowButton = ({ userIdToFollow }) => {
           );
           setIsFollowing(followStatus);
         } catch (error) {
+          window.alert(
+            "Failed to perform the operation. Please try again later."
+          );
+
           console.error("Error fetching follow status:", error);
         }
       }
@@ -33,18 +37,22 @@ const FollowButton = ({ userIdToFollow }) => {
       setIsLoading(true);
       const response = await toggleFollow(userIdToFollow, token, user.id);
       if (response) {
-        setIsFollowing(!isFollowing);
+        setIsFollowing((prevIsFollowing) => !prevIsFollowing);
       }
     } catch (error) {
-      console.error("Error toggling follow status:", error);
       window.alert("Failed to perform the operation. Please try again later.");
+      console.error("Error toggling follow status:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <StyledButton onClick={handleFollowToggle} disabled={isLoading || !user}>
+    <StyledButton
+      onClick={handleFollowToggle}
+      disabled={isLoading || !user}
+      data-test="follow-btn"
+    >
       {isLoading ? "Loading..." : isFollowing ? "Unfollow" : "Follow"}
     </StyledButton>
   );
